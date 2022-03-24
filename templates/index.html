@@ -1,0 +1,161 @@
+<html>
+<head>
+    <script   src="https://code.jquery.com/jquery-3.1.1.min.js"   integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="   crossorigin="anonymous"></script>
+    <style>
+        *,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body,
+section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+body {
+  min-height: 100vh;
+  font-family: "Lato", sans-serif;
+  line-height: 1.5;
+  color: #111;
+}
+
+main {
+  max-width: 720px;
+  width: 100%;
+  border: 2.5px solid #330867;
+  border-radius: 2.5px;
+  background-color: #A3BA8C;
+}
+
+input,
+button {
+  font-family: inherit;
+  line-height: inherit;
+  color: inherit;
+  border: 0;
+  padding: 1rem;
+}
+
+input {
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.buttons {
+  display: flex;
+}
+
+button {
+  cursor: pointer;
+  flex: 1;
+  background-color: transparent;
+  color: red;
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.5);
+  }
+}
+
+section {
+  min-height: 120px;
+  text-align: center;
+  background-color: white;
+}
+
+.content {
+  position: relative;
+}
+
+.popup {
+  position: absolute;
+  left: 40%;
+  bottom: -100px; 
+  background-color: #A3BA8C;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.popup.active {
+  animation: popup 1s ease-in-out;
+}
+
+@keyframes popup {
+  0%{
+    opacity: 0;
+    pointer-events: none;
+  }
+  40%{
+    opacity: 1;
+    pointer-events: auto;
+  }
+  80%{
+    opacity: 1;
+    pointer-events: auto;
+  }
+  100%{
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+    </style>
+</head>
+
+<main>
+  <h1><center>URL Shortener</center></h1><br>
+  <h6><center>TIP: CLICK ON THE GENERATED LINK TO COPY IT TO CLIPBOARD</center></h6>
+  <form id="post-form">
+    {% csrf_token %}
+  <input type="text" name="link" id="link" placeholder="Enter URL here">
+  <div class="buttons">
+    <button type="submit" id="shorten">Shorten</button>
+  </div>
+  </form>
+  <div class="content">
+    <section id="section"><h2></h2></section>
+    <div class="popup"><h4>Link Copied!</h4>
+  </div>
+</main>
+
+<script type="text/javascript">
+  $(document).on('submit','#post-form',function(e){
+    e.preventDefault();
+
+    $.ajax({
+      type:'POST',
+      url:'/create',
+      data:{
+        link:$('#link').val(),
+        csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val(),
+      },
+      success: function(data){
+        $('h2').html("https://urlshortener2803.herokuapp.com/"+data)
+      }
+    });
+  });
+  
+  const text = document.querySelector('.content h2');
+  const popup = document.querySelector('.popup');
+  text.addEventListener('click',() =>{
+    popup.classList.add('active');
+    copyContent();
+  })
+  text.addEventListener('animationend',() => {
+    popup.classList.remove('active');
+  })
+  
+  function copyContent(){
+    const textArea = document.createElement('textArea');
+    textArea.setAttribute('readonly','');
+    textArea.style.position = 'absolute';
+    textArea.value = text.innerText
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textArea);
+  }
+</script>
+</html>
